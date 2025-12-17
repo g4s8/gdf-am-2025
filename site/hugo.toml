@@ -1,0 +1,27 @@
+# FIXME: baseURL
+baseURL = 'https://fixme.org/'
+languageCode = 'en-us'
+title = 'Go Beyond Models'
+
+theme = ["github.com/joshed-io/reveal-hugo"]
+
+[markup.goldmark.renderer]
+unsafe = true
+
+[outputFormats.Reveal]
+baseName = "index"
+mediaType = "text/html"
+isHTML = true
+
+
+[params.reveal_hugo]
+# theme = "white"
+theme = "robot-lung"
+# custom_theme = "robot-lung.css"
+highlight_theme = "github"
+slide_number = "c/t"
+transition = 'slide'
+# custom_css = "css/custom.css"
+
+[markup.highlight]
+codeFences = false
