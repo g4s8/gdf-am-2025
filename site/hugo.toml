@@ -1,5 +1,4 @@
-# FIXME: baseURL
-baseURL = 'https://fixme.org/'
+baseURL = 'https://g4s8.github.io/gdf-am-2025/'
 languageCode = 'en-us'
 title = 'Go Beyond Models'
 
