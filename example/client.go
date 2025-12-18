@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 )
 
@@ -50,6 +51,7 @@ func (c *OpenAIClient) Stream(ctx context.Context, input string, model string, e
 		upResp, err := c.cli.Do(upReq)
 		if err != nil {
 			if errors.Is(err, context.Canceled) {
+				log.Printf("upstream request canceled")
 				return
 			}
 			errCh <- fmt.Errorf("upstream request failed: %w", err)
@@ -70,10 +72,12 @@ func (c *OpenAIClient) Stream(ctx context.Context, input string, model string, e
 			}
 			if err != nil {
 				if errors.Is(err, io.EOF) {
+					log.Printf("upstream response read completed")
 					return
 				}
 
 				if errors.Is(err, context.Canceled) {
+					log.Printf("upstream response read canceled")
 					return
 				}
 				errCh <- fmt.Errorf("error reading upstream response: %w", err)
