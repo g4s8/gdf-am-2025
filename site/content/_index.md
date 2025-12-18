@@ -504,3 +504,17 @@ and reliability requirements.
 
 You don’t need Go everywhere - just where predictability matters.
 {{% /note %}}
+
+---
+
+AI models may be smurt. AI backends must be reliabile.
+
+---
+
+# Contacts
+
+![qr-g4s8](images/qr-g4s8.png)
+
+ - Me: [github.com/g4s8](https://github.com/g4s8)
+ - Slides: [github.com/g4s8/gdf-am-2025](https://github.com/g4s8/gdf-am-2025)
+

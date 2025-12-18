@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Go AI Gateway Stream Demo</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; max-width: 900px; }
+    textarea { width: 100%; height: 120px; padding: 10px; font-size: 14px; }
+    button { padding: 10px 14px; font-size: 14px; cursor: pointer; }
+    .row { display: flex; gap: 10px; align-items: center; margin: 12px 0; }
+    .status { color: #555; font-size: 13px; }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      padding: 14px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      min-height: 160px;
+      background: #fafafa;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .muted { color: #777; }
+  </style>
+</head>
+<body>
+  <h1>Streaming Chat Demo</h1>
+  <p class="muted">
+    Talks to <code>POST /chat</code> and renders streaming output in real time.
+  </p>
+
+  <label for="prompt"><strong>Prompt</strong></label>
+  <textarea id="prompt">Write a short story about a Go programmer building an AI gateway.</textarea>
+
+  <div class="row">
+    <button id="send">Send</button>
+    <button id="cancel" disabled>Cancel</button>
+    <span class="status" id="status">Idle</span>
+  </div>
+
+  <h3>Output</h3>
+  <pre id="out"></pre>
+
+  <script>
+    const promptEl = document.getElementById("prompt");
+    const outEl = document.getElementById("out");
+    const sendBtn = document.getElementById("send");
+    const cancelBtn = document.getElementById("cancel");
+    const statusEl = document.getElementById("status");
+
+    let controller = null;
+
+    function setStatus(s) { statusEl.textContent = s; }
+
+    // Minimal SSE parser that extracts:
+    // event: response.output_text.delta
+    // data: {...}
+    function createSSEDeltaExtractor(onDelta, onEvent) {
+      let buffer = "";
+      let currentEvent = "";
+      let dataLines = [];
+
+      function flushEvent() {
+        if (!currentEvent && dataLines.length === 0) return;
+        const dataStr = dataLines.join("\n");
+        onEvent?.(currentEvent, dataStr);
+
+        // We only care about response.output_text.delta
+        if (currentEvent === "response.output_text.delta") {
+          try {
+            const obj = JSON.parse(dataStr);
+            // Typical field: obj.delta (string)
+            const chunk = obj.delta ?? "";
+            if (chunk) onDelta(chunk);
+          } catch (e) {
+            // Ignore parse errors (could be partial/other event formats)
+          }
+        }
+
+        currentEvent = "";
+        dataLines = [];
+      }
+
+      return function feed(textChunk) {
+        buffer += textChunk;
+
+        // SSE events are separated by a blank line
+        while (true) {
+          const sepIndex = buffer.indexOf("\n\n");
+          if (sepIndex === -1) break;
+
+          const rawEvent = buffer.slice(0, sepIndex);
+          buffer = buffer.slice(sepIndex + 2);
+
+          // Parse lines
+          const lines = rawEvent.split("\n");
+          for (const line of lines) {
+            if (line.startsWith("event:")) {
+              currentEvent = line.slice(6).trim();
+            } else if (line.startsWith("data:")) {
+              dataLines.push(line.slice(5).trim());
+            } else if (line.trim() === "") {
+              // ignore
+            }
+          }
+
+          flushEvent();
+        }
+      };
+    }
+
+    async function send() {
+      const input = promptEl.value.trim();
+      if (!input) return;
+
+      outEl.textContent = "";
+      setStatus("Connecting…");
+      sendBtn.disabled = true;
+      cancelBtn.disabled = false;
+
+      controller = new AbortController();
+
+      try {
+        const res = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ input }),
+          signal: controller.signal,
+        });
+
+        if (!res.ok) {
+          const errText = await res.text();
+          outEl.textContent = `HTTP ${res.status}\n\n${errText}`;
+          setStatus("Error");
+          return;
+        }
+
+        setStatus("Streaming…");
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+
+        const feed = createSSEDeltaExtractor(
+          (delta) => {
+            outEl.textContent += delta;
+            // keep scrolled to bottom
+            outEl.scrollTop = outEl.scrollHeight;
+          },
+          (eventName, data) => {
+            // Optional: uncomment for debugging events
+            // console.log("SSE event", eventName, data);
+          }
+        );
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          feed(decoder.decode(value, { stream: true }));
+        }
+
+        setStatus("Done");
+      } catch (e) {
+        if (e.name === "AbortError") {
+          setStatus("Cancelled");
+        } else {
+          setStatus("Error");
+          outEl.textContent = String(e);
+        }
+      } finally {
+        sendBtn.disabled = false;
+        cancelBtn.disabled = true;
+        controller = null;
+      }
+    }
+
+    function cancel() {
+      if (controller) controller.abort();
+    }
+
+    sendBtn.addEventListener("click", send);
+    cancelBtn.addEventListener("click", cancel);
+
+    // Ctrl+Enter to send
+    promptEl.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") send();
+    });
+  </script>
+</body>
+</html>
+
