@@ -20,7 +20,13 @@ theme = "robot-lung"
 highlight_theme = "github"
 slide_number = "c/t"
 transition = 'slide'
-# custom_css = "css/custom.css"
+custom_css = "css/custom.css"
 
+# choose between Hugo compile-time or Highlight.js
+# syntax highlighting for code inside of code fences
 [markup.highlight]
-codeFences = false
+codeFences = true  # use highlight.js
+# codeFences = true  # use hugo highlighting at compile time
+style = "tango"  # set a style for hugo highlighting
+
+

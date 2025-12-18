@@ -1,0 +1,8 @@
+.code-wrapper {
+  box-shadow: none !important;
+}
+
+code {
+  border: 1px solid grey;
+  padding: 12px 24px !important;
+}
