@@ -406,7 +406,7 @@ Why Go is good at explicit backpressure:
 select {
 case queue <- req:
 default:
-    return 429
+    return http.StatusTooManyRequests
 }
 ```
 
