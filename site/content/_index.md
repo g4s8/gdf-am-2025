@@ -73,11 +73,14 @@ This talk is about that layer.
 {{% note %}}
 In production, AI backends have very specific problems.
 
-Users expect streaming responses.
-APIs are expensive,
+Users expect streaming responses: receive tokens from LLM to browser.
+APIs are expensive: in all meaning, it could be expensive in terms of money, and it's
+expensive for memory usage.
 so it should support cancellation.
-Load is bursty.
-And latency really matters.
+Load is bursty: so backend shold support spikes without latency degrades,
+because latency really matters.
+
+talk about latency later.
 
 These are not AI problems - these are classic backend engineering problems, just amplified by AI.
 {{% /note %}}
@@ -116,8 +119,8 @@ And that’s exactly why Go fits so well here.
 
 # What this backend must handle
 
- * High concurrency
  * Streaming responses
+ * High concurrency
  * Cancellations
  * Bounded load
  * Predictable latency
@@ -126,7 +129,7 @@ And that’s exactly why Go fits so well here.
  * User response streaming
  * It causes high concurrency
  * And cancellation of streams
- * Predictability, stable memory usage and latency
+ * Predictable latency, and stable memory usage
 {{% /note %}}
 
 ---
