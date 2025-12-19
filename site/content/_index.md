@@ -114,7 +114,8 @@ Responsibilities:
  * metrics
 
 {{% note %}}
-This gateway handles authentication, streaming, retries, rate limits, metrics, and abstracts different AI providers.
+This gateway handles authentication, streaming, retries, rate limits, metrics,
+and hides provider differences behind a single API.
 
 From an architecture point of view, this is a normal backend service.
 And that’s exactly why Go fits so well here.
@@ -132,6 +133,13 @@ And that’s exactly why Go fits so well here.
  * Bounded load
  * Predictable latency
 
+{{% note %}}
+ * High concurrency
+ * Streaming
+ * Cancellation
+ * Predictability, stable memory usage and latency
+{{% /note %}}
+
 ---
 
 # Why Go
@@ -139,7 +147,7 @@ And that’s exactly why Go fits so well here.
  * High concurrency → goroutines
  * Streaming → net/http
  * Cancellation → context
- * Predictability → stable memory & GC
+ * Predictability → stable memory usage & GC
  * Deploy → single binary
 
 {{% note %}}
@@ -159,7 +167,7 @@ None of this is exotic, but together it makes Go very practical.
 
 # concurrency
 
-Typical request:
+A typical request:
  * user request
  * retrieval
  * user context
@@ -173,7 +181,8 @@ You might fetch user context, run a retrieval query, call some tools, and then c
 
 That means one user request often becomes several concurrent backend requests.
 
-If your concurrency model is awkward, the whole system becomes hard to reason about.
+If your concurrency model is awkward, the whole system becomes hard to reason about,
+and hard to debug at 2 a.m.
 {{% /note %}}
 
 ---
@@ -193,6 +202,28 @@ graph LR
     C --> E
     D --> E
 {{< /mermaid >}}
+
+{{% note %}}
+This diagram shows what a *single* AI request looks like in a real system.
+
+One user request almost never maps to one backend call.
+Instead, it fans out into several parallel operations:
+loading user data, fetching context, running retrieval, calling tools.
+
+All of these happen concurrently, and only then do we fan back in
+and send a single request to the LLM.
+
+(For managers)
+this is why AI backends feel expensive and complex —
+one user action triggers many systems at once.
+
+(For engineers)
+this is a classic fan-out / fan-in pattern.
+If concurrency is hard to express or reason about,
+latency and failure handling become unpredictable.
+
+This is where a simple and explicit concurrency model really matters.
+{{% /note %}}
 
 ---
 {{% section %}}
@@ -258,7 +289,6 @@ That's one of Go’s biggest strengths.
 
 ---
  
-
  * cheap goroutines
  * natural parallelism
  * simple mental model
@@ -281,6 +311,7 @@ That's one of Go’s biggest strengths.
  * Costs grow silently
 
 {{% note %}}
+AI backends fail at p99 latency.
 
 Manager-friendly:
     When we talk about performance, average numbers lie.
@@ -405,13 +436,38 @@ No unbounded queues. No surprise latency spikes.
  * Cheap concurrency
  * Cancellation is built-in
 
+{{% note %}}
+Backpressure is not a Go-specific idea.
+Every serious backend system needs it.
+
+What Go does well is making backpressure *explicit and visible*.
+
+Channels are first-class language features,
+and they are bounded by default.
+That means limits are not hidden in configuration
+or spread across frameworks — they are right in the code.
+
+Cheap concurrency allows us to control parallelism precisely,
+instead of relying on large thread pools or global event loops.
+
+And cancellation is built in via context propagation,
+so once a request should stop, the whole call chain stops with it.
+
+For managers:
+this predictability means fewer incidents and lower AI costs.
+
+For engineers:
+this means you can see where the limits are,
+and reason about p99 behavior before the system is in production.
+{{% /note %}}
+
 ---
 
 ```go
 select {
 case queue <- req:
 default:
-    return http.StatusTooManyRequests
+    return http.StatusTooManyRequests // fast reject
 }
 ```
 
@@ -508,7 +564,8 @@ You don’t need Go everywhere - just where predictability matters.
 
 ---
 
-AI models may be smurt. AI backends must be reliabile.
+**AI models may be smart.
+AI backends must be reliabile.**
 
 ---
 
