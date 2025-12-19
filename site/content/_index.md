@@ -58,6 +58,8 @@ This layer does things like **authentication, streaming responses, retries, rate
 If this layer is slow or unstable, users don’t care how smart your model is - the system feels broken.
 
 This talk is about that layer.
+
+Now let's assume we will talk about LLM AI API. But the majority of the topics are also applicable to other types of AI.
 {{% /note %}}
 
 ---
