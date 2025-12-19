@@ -213,6 +213,19 @@ This is where a simple and explicit concurrency model really matters.
 {{% /note %}}
 
 ---
+ 
+ * cheap goroutines
+ * natural parallelism
+ * simple mental model
+
+---
+
+ * Python: async complexity
+ * Node: event loop pressure
+ * Java: thread cost
+
+---
+
 {{% section %}}
 
 # Streaming
@@ -273,18 +286,6 @@ Even if you don't know Go, this code is readable.
 That's one of Go’s biggest strengths.
 {{% /note %}}
 
-
----
- 
- * cheap goroutines
- * natural parallelism
- * simple mental model
-
----
-
- * Python: async complexity
- * Node: event loop pressure
- * Java: thread cost
 
 {{% /section %}}
 
