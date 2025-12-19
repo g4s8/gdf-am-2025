@@ -29,7 +29,7 @@ GPT, Claude, agents, tools, prompts - that's where most discussions stop.
 
 But models don't magically run in production.
 
-Every real AI system depends on a backend that handles traffic, failures, latency, and cost.
+Every real AI system depends on a backend that handles **traffic, failures, latency, and cost**.
 And that backend is where most real engineering problems live.
 {{% /note %}}
 
@@ -55,7 +55,7 @@ Backend responsibilities:
 Between users and AI models, there is always a backend layer.
 This layer does things like **authentication, streaming responses, retries, rate limits, logging, and metrics**.
 
-If this layer is slow or unstable, users don’t care how smart your model is — the system feels broken.
+If this layer is slow or unstable, users don’t care how smart your model is - the system feels broken.
 
 This talk is about that layer.
 {{% /note %}}
@@ -101,11 +101,11 @@ graph LR
 {{< /mermaid >}}
 
 {{% note %}}
-A common solution is to introduce an AI gateway — a single backend service that all clients talk to.
+A common solution is to introduce an AI gateway - a single backend service that all clients talk to.
 
 This is usually a small service - often 1-3 replicas - but it sits on the critical path.
 
-The gateway handles authentication, streaming, retries, rate limits, metrics,
+The gateway handles **authentication, streaming, retries, rate limits, metrics,**
 and hides provider differences behind a single API.
 
 From an architecture point of view, this is a normal backend service.
@@ -123,9 +123,9 @@ And that’s exactly why Go fits so well here.
  * Predictable latency
 
 {{% note %}}
- * High concurrency
- * Streaming
- * Cancellation
+ * User response streaming
+ * It causes high concurrency
+ * And cancellation of streams
  * Predictability, stable memory usage and latency
 {{% /note %}}
 
@@ -142,9 +142,9 @@ And that’s exactly why Go fits so well here.
 {{% note %}}
 Go was designed for exactly this kind of workload.
 
-You get cheap concurrency with goroutines.
-Streaming with the standard HTTP library.
-Cancellation built into the language.
+You get cheap **concurrency** with goroutines.
+**Streaming** with the standard HTTP library.
+**Cancellation** built into the language.
 Predictable memory usage.
 And very simple deployment - a single binary.
 
@@ -214,6 +214,7 @@ This is where a simple and explicit concurrency model really matters.
 
 ---
  
+**Go**
  * cheap goroutines
  * natural parallelism
  * simple mental model
