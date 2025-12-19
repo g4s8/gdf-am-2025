@@ -490,14 +490,15 @@ Request context propagates intent across the system.
 Python
 
  * good for models
- * painful concurrency
+ * painful concurrency: async + GIL
+ * fragile exception based cancellation
 
 ---
 
 Node
 
- * async-friendly
- * memory & CPU under load
+ * async-friendly: great for I/O
+ * memory & CPU grows under load
 
 ---
 
@@ -505,20 +506,23 @@ Java
 
  * mature
  * heavy for gateways
+ * requires careful tuning
+ * thread interruption: often ignored
 
 ---
 
 Go
 
- * simple
- * predictable
- * infra-native
+ * simple concurrency
+ * bounded channels: fast rejection
+ * built-in cancellation: request-scoped by design
+ * predictable latency
 
 {{% /section %}}
 
 ---
 
-# Deployment & ops
+# Bonus: deployment & ops
 
   - {{% fragment %}} One binary {{% /fragment %}}
   - {{% fragment %}} Small Docker image {{% /fragment %}}
@@ -530,14 +534,13 @@ Go
 
 # Go for AI
 
- * {{% fragment %}} Multiple clients {{% /fragment %}}
+ * {{% fragment %}} Many clients {{% /fragment %}}
  * {{% fragment %}} Streaming {{% /fragment %}}
  * {{% fragment %}} Cost control {{% /fragment %}}
  * {{% fragment %}} Reliability {{% /fragment %}}
- * {{% fragment %}} Multi-provider {{% /fragment %}}
 
 {{% note %}}
-Go is a good choice when you have multiple AI consumers, streaming, strict cost control,
+Go is a good choice when you have many AI consumers, streaming, strict cost control,
 and reliability requirements.
 
 You don't need Go everywhere - just where predictability matters.
