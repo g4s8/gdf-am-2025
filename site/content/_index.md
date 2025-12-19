@@ -338,10 +338,10 @@ Key line:
  * Bursty traffic
 
 {{% note %}}
-    Every AI request fans out.
-    One user request becomes several backend calls.
+Every AI request fans out.
+One user request becomes several backend calls.
 
-    If you don’t put limits somewhere, the system doesn’t slow down — it collapses.
+If you don’t put limits somewhere, the system doesn’t slow down — it collapses.
 {{% /note %}}
 
 ---
