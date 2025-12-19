@@ -15,7 +15,7 @@ Instead, I want to talk about the part of AI systems that usually gets less atte
 
 ---
 
-# The AI hype layer
+# The AI hype
 
  * GPT
  * Agents
@@ -82,15 +82,20 @@ These are not ML problems — these are classic backend engineering problems, ju
 
 {{% section %}}
 
-AI gateway
+# AI gateway
 
 {{< mermaid >}}
 graph LR
     A(["Clients"])
-    A --> B["Go API backend"]
-    B --> C("OpenAI")
-    B --> D("Something else")
-    B --> E("Something else 2")
+    B["Load balancer"]
+    C(["AI API"])
+    A --> B
+    B --> X["API backend"]
+    B --> Y["API backend"]
+    B --> Z["API backend"]
+    X --> C
+    Y --> C
+    Z --> C
 {{< /mermaid >}}
 
 {{% note %}}
@@ -116,45 +121,6 @@ And that’s exactly why Go fits so well here.
 {{% /note %}}
 
 {{% /section %}}
-
----
-
-# concurrency
-
-Typical request:
- * user request
- * retrieval
- * user context
- * tool calls
- * LLM
-
-{{% note %}}
-A single AI request is rarely just one call.
-
-You might fetch user context, run a retrieval query, call some tools, and then call the LLM.
-
-That means one user request often becomes several concurrent backend requests.
-
-If your concurrency model is awkward, the whole system becomes hard to reason about.
-{{% /note %}}
-
----
-
-Fan-in / Fan-out
-
-{{< mermaid >}}
-graph LR
-    A(["Request"])
-    E(["LLM request"])
-
-    A --> B["Load data"]
-    A --> C["Load user profile"]
-    A --> D["Load context"]
-
-    B --> E
-    C --> E
-    D --> E
-{{< /mermaid >}}
 
 ---
 
@@ -190,6 +156,45 @@ None of this is exotic, but together it makes Go very practical.
 
 ---
 
+
+# concurrency
+
+Typical request:
+ * user request
+ * retrieval
+ * user context
+ * tool calls
+ * LLM
+
+{{% note %}}
+A single AI request is rarely just one call.
+
+You might fetch user context, run a retrieval query, call some tools, and then call the LLM.
+
+That means one user request often becomes several concurrent backend requests.
+
+If your concurrency model is awkward, the whole system becomes hard to reason about.
+{{% /note %}}
+
+---
+
+# Fan-in / Fan-out
+
+{{< mermaid >}}
+graph LR
+    A(["Request"])
+    E(["LLM request"])
+
+    A --> B["Load data"]
+    A --> C["Load user profile"]
+    A --> D["Load context"]
+
+    B --> E
+    C --> E
+    D --> E
+{{< /mermaid >}}
+
+---
 {{% section %}}
 
 # Streaming
@@ -250,11 +255,9 @@ Even if you don't know Go, this code is readable.
 That's one of Go’s biggest strengths.
 {{% /note %}}
 
-{{% /section %}}
 
 ---
  
-{{% section %}}
 
  * cheap goroutines
  * natural parallelism
@@ -272,7 +275,6 @@ That's one of Go’s biggest strengths.
 
 # AI backends fail at p99
 
-Bullet points:
  * LLM APIs have unpredictable latency
  * One slow request blocks many others
  * Retries amplify the problem
@@ -358,6 +360,8 @@ Fast rejection keeps p99 low.
 
 ---
 
+# Bounded channels
+
 {{< mermaid >}}
 graph LR
     A(["Clients"])
@@ -389,11 +393,12 @@ We’d rather say 'try again' than let everyone wait forever.
 No unbounded queues. No surprise latency spikes.
 {{% /note %}}
 
+
 ---
 
 {{% section %}}
 
-Why Go is good at explicit backpressure:
+**Why Go is good at explicit backpressure**
 
  * Channels are first-class
  * Bounded by default
@@ -425,23 +430,19 @@ Key line:
 
 ---
 
-# Cancellation = cost control
+**Cancellation = cost control**
 
-User closes tab → Context cancelled → Stop upstream token generation
+User closes tab → Request context cancelled → Stop upstream token generation
 
 {{% note %}}
-Manager angle:
-    In AI systems, cancellation literally saves money.
+(Manager angle) In AI systems, cancellation literally saves money.
 
-Engineer:
-    context.Context propagates intent across the system.
+(Engineer) context.Context propagates intent across the system.
 
-Tie back to p99:
-    Cancellation prevents slow requests from poisoning the tail.
+(Tie back to p99) Cancellation prevents slow requests from poisoning the tail.
 {{% /note %}}
 
 ---
-
 
 {{% section %}}
 
