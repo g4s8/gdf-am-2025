@@ -186,11 +186,11 @@ and hard to debug at 2 a.m.
 {{< mermaid >}}
 graph LR
     A(["Request "])
-    E(["LLM request. "])
+    E(["LLM request   "])
 
-    A --> B["Load data. "]
-    A --> C["Load user profile. "]
-    A --> D["Load context. "]
+    A --> B["Load data   "]
+    A --> C["Load user profile    "]
+    A --> D["Load context.  "]
 
     B --> E
     C --> E
