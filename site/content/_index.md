@@ -39,9 +39,9 @@ And that backend is where most real engineering problems live.
 
 {{< mermaid >}}
 graph LR
-    A["Frontend  "]
-    A --> B["Backend  "]
-    B --> C["LLM API  "]
+    A["Frontend   "]
+    A --> B["Backend   "]
+    B --> C["LLM API   "]
 {{< /mermaid >}}
 
 Backend responsibilities:
