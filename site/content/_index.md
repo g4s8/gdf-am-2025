@@ -39,9 +39,9 @@ And that backend is where most real engineering problems live.
 
 {{< mermaid >}}
 graph LR
-    A["Frontend"]
-    A --> B["Backend"]
-    B --> C["LLM API"]
+    A["Frontend  "]
+    A --> B["Backend  "]
+    B --> C["LLM API  "]
 {{< /mermaid >}}
 
 Backend responsibilities:
@@ -93,13 +93,13 @@ These are not AI problems - these are classic backend engineering problems, just
 
 {{< mermaid >}}
 graph LR
-    A(["Clients"])
-    B["Load balancer"]
+    A(["Clients "])
+    B["Load balancer "]
     C(["AI API"])
     A --> B
-    B --> X["API backend"]
-    B --> Y["API backend"]
-    B --> Z["API backend"]
+    B --> X["API backend. "]
+    B --> Y["API backend. "]
+    B --> Z["API backend. "]
     X --> C
     Y --> C
     Z --> C
@@ -185,12 +185,12 @@ and hard to debug at 2 a.m.
 
 {{< mermaid >}}
 graph LR
-    A(["Request"])
-    E(["LLM request"])
+    A(["Request "])
+    E(["LLM request. "])
 
-    A --> B["Load data"]
-    A --> C["Load user profile"]
-    A --> D["Load context"]
+    A --> B["Load data. "]
+    A --> C["Load user profile. "]
+    A --> D["Load context. "]
 
     B --> E
     C --> E
@@ -355,12 +355,12 @@ Most AI outages are slow failures, not crashes.
 
 {{< mermaid >}}
 graph LR
-    A(["Clients"])
-    F("LLM API")
+    A(["Clients "])
+    F("LLM API ")
 
-    A --> B["Bounded queue"]
+    A --> B["Bounded queue. "]
 
-    B --> C["Workers"]
+    B --> C["Workers "]
 
     C --> F
 {{< /mermaid >}}
@@ -385,14 +385,14 @@ Fast rejection keeps p99 low.
 
 {{< mermaid >}}
 graph LR
-    A(["Clients"])
-    F("LLM API")
+    A(["Clients "])
+    F("LLM API. ")
 
-    A --> B["Channel  (100)"]
+    A --> B["Channel  (100). "]
 
-    B --> C["Worker1"]
-    B --> D["Worker ..."]
-    B --> E["Worker20"]
+    B --> C["Worker1  "]
+    B --> D["Worker ...  "]
+    B --> E["Worker20. "]
 
     C --> F
     D --> F
